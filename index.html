@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 동아리</title>
+<style>
+:root{
+  --main:#4f7cff;
+  --bg:#f4f6fb;
+  --card:#fff;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:url("바탕화면.jpg") center/cover no-repeat;}
+header{
+  height:220px;
+  background:url("바탕화면.jpg") center/cover no-repeat;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:white;
+  font-size:2rem;
+  font-weight:bold;
+  text-shadow:0 2px 5px rgba(0,0,0,.5);
+}
+.toolbar{
+  display:flex;
+  gap:10px;
+  padding:15px;
+  justify-content:center;
+}
+button{
+  padding:10px 18px;
+  border:none;
+  border-radius:10px;
+  background:var(--main);
+  color:white;
+  cursor:pointer;
+}
+#board{
+  display:flex;
+  gap:20px;
+  padding:20px;
+  overflow-x:auto;
+}
+.section{
+  min-width:320px;
+  background:#eef2ff;
+  border-radius:15px;
+  padding:15px;
+}
+.section h2{
+  margin-top:0;
+}
+.card{
+  background:var(--card);
+  border-radius:12px;
+  padding:10px;
+  margin-bottom:12px;
+  box-shadow:0 2px 6px rgba(0,0,0,.15);
+}
+.card img{
+  width:100%;
+  border-radius:8px;
+}
+.small{
+  color:#666;
+  font-size:.9rem;
+}
+.delete{
+  margin-top:8px;
+  background:#d9534f;
+}
+dialog{
+  border:none;
+  border-radius:12px;
+  padding:20px;
+  width:320px;
+}
+dialog input,dialog textarea,dialog select{
+  width:100%;
+  margin-bottom:10px;
+  padding:8px;
+}
+</style>
+</head>
+<body>
+
+<header id="hero">
+배경 이미지는 나중에 넣어주세요
+</header>
+
+<div class="toolbar">
+<button onclick="openAdd()">+ 작품 추가</button>
+<button onclick="addSection()">+ 섹션 추가</button>
+</div>
+
+<div id="board">
+</div>
+
+<dialog id="dlg">
+<h3>작품 등록</h3>
+
+<select id="sectionSelect"></select>
+
+<input id="title" placeholder="제목">
+
+<input id="author" placeholder="작성자">
+
+<textarea id="desc" placeholder="설명"></textarea>
+
+<input type="file" id="image" accept="image/*">
+
+<div style="display:flex;gap:10px;">
+<button onclick="saveCard()">등록</button>
+<button onclick="dlg.close()">취소</button>
+</div>
+</dialog>
+
+<script>
+const board=document.getElementById("board");
+const dlg=document.getElementById("dlg");
+
+const sections=["만화","카드뉴스","기타"];
+
+function renderSections(){
+  board.innerHTML="";
+  const sel=document.getElementById("sectionSelect");
+  sel.innerHTML="";
+  sections.forEach(name=>{
+      const div=document.createElement("div");
+      div.className="section";
+      div.innerHTML="<h2>"+name+"</h2><div class='cards'></div>";
+      board.appendChild(div);
+
+      const op=document.createElement("option");
+      op.textContent=name;
+      sel.appendChild(op);
+  });
+}
+
+renderSections();
+
+function addSection(){
+    const name=prompt("섹션 이름");
+    if(!name)return;
+    sections.push(name);
+    renderSections();
+}
+
+function openAdd(){
+    dlg.showModal();
+}
+
+function saveCard(){
+    const file=document.getElementById("image").files[0];
+    if(!file){
+        alert("이미지를 선택하세요.");
+        return;
+    }
+
+    const reader=new FileReader();
+
+    reader.onload=e=>{
+        const card=document.createElement("div");
+        card.className="card";
+
+        card.innerHTML=`
+        <img src="${e.target.result}">
+        <h3>${title.value}</h3>
+        <div class="small">${author.value}</div>
+        <p>${desc.value}</p>
+        <button class="delete">삭제</button>
+        `;
+
+        card.querySelector(".delete").onclick=()=>card.remove();
+
+        const idx=sectionSelect.selectedIndex;
+        document.querySelectorAll(".cards")[idx].appendChild(card);
+
+        dlg.close();
+
+        title.value="";
+        author.value="";
+        desc.value="";
+        image.value="";
+    }
+
+    reader.readAsDataURL(file);
+}
+</script>
+
+</body>
+</html>
